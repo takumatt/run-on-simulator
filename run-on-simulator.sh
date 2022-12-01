@@ -15,12 +15,13 @@ if [[ ! -d "./app" ]]; then
 fi
 
 bin_dir="bin"
+script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 bin="run-on-simulator"
 src=`find app -name "*.swift"`
 app_bundle="run-on-simulator.app/"
-app_id=`xmllint --xpath '//key[text()="CFBundleIdentifier"]/following::string[1]/text()' Info.plist`
+app_id=`xmllint --xpath '//key[text()="CFBundleIdentifier"]/following::string[1]/text()' ${script_dir}/Info.plist`
 
-plutil -replace 'CFBundleIdentifier' -string "com.takuma.matsushita.run-on-simulator" Info.plist
+plutil -replace 'CFBundleIdentifier' -string "com.takuma.matsushita.run-on-simulator" ${script_dir}/Info.plist
 
 if [[ `xcrun simctl list | grep "Booted"` != *${UDID}* ]]; then
     xcrun simctl boot ${UDID}
@@ -29,7 +30,7 @@ fi
 mkdir -p ${bin_dir}
 xcrun -sdk iphonesimulator swiftc -target ${target} ${src} -o ${bin_dir}/${bin}
 mkdir -p ${app_bundle}
-cp Info.plist ${bin_dir}/${bin} ${app_bundle}
+cp ${script_dir}/Info.plist ${bin_dir}/${bin} ${app_bundle}
 
 xcrun simctl install ${UDID} ${app_bundle}
 xcrun simctl launch --console ${UDID} ${app_id}

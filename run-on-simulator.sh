@@ -8,18 +8,20 @@ fi
 UDID=$1
 target=$2
 
+# Place swift-files
+if [[ ! -d "./app" ]]; then
+    mkdir -p app
+    echo "print(\"Hello from main.swift\")" > ./app/main.swift
+fi
+
 bin_dir="bin"
 bin="run-on-simulator"
 src=`find app -name "*.swift"`
 app_bundle="run-on-simulator.app/"
 app_id=`xmllint --xpath '//key[text()="CFBundleIdentifier"]/following::string[1]/text()' Info.plist`
 
-# Place swift-files
-# Example: swift PreviewProviderExtractor.swift app/ExampleView.swift | xargs swift PreviewCodeBuilder.swift > app/main.swift
-
 plutil -replace 'CFBundleIdentifier' -string "com.takuma.matsushita.run-on-simulator" Info.plist
 
-## TODO: Boot if needed
 if [[ `xcrun simctl list | grep "Booted"` != *${UDID}* ]]; then
     xcrun simctl boot ${UDID}
 fi
